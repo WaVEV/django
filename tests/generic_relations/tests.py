@@ -1,8 +1,4 @@
 from bson import ObjectId
-<<<<<<< HEAD
-
-=======
->>>>>>> 8bf77cd71d (Using textfield instead of ObjectIdField.)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.core.exceptions import FieldError
