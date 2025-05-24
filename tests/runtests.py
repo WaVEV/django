@@ -152,8 +152,7 @@ def get_test_modules(gis_enabled):
                 yield test_module
 
     # Discover tests in django_mongodb_backend/tests.
-    dirpath = os.path.join(MONGODB_TEST_DIR, dirname)
-    with os.scandir(dirpath) as entries:
+    with os.scandir(MONGODB_TEST_DIR) as entries:
         for f in entries:
             if (
                 "." in f.name
@@ -161,10 +160,7 @@ def get_test_modules(gis_enabled):
                 or not os.path.exists(os.path.join(f.path, "__init__.py"))
             ):
                 continue
-            test_module = f.name
-            if dirname:
-                test_module = dirname + "." + test_module
-            yield test_module
+            yield f.name
 
 
 def get_label_module(label):
