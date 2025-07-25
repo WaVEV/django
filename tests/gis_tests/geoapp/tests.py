@@ -26,10 +26,12 @@ from .models import (
     City,
     Country,
     Feature,
+    Lines,
     MinusOneSRID,
     MultiFields,
     NonConcreteModel,
     PennsylvaniaCity,
+    Points,
     State,
     ThreeDimensionalFeature,
     Track,
@@ -267,6 +269,37 @@ class GeoModelTest(TestCase):
                 g = LineString(srid=4326)
             self.assertEqual(feature.geom, g)
             self.assertEqual(feature.geom.srid, g.srid)
+
+
+# TODO: contribute these tests added to the MongoDB fork upstream to Django.
+class SaveLoadTests(TestCase):
+    def test_multi_line_string_field(self):
+        geom = MultiLineString(
+            LineString((0, 0), (1, 1), (5, 5)),
+            LineString((0, 0), (0, 5), (5, 5), (5, 0), (0, 0)),
+        )
+        obj = Lines.objects.create(geom=geom)
+        obj.refresh_from_db()
+        self.assertEqual(obj.geom.tuple, geom.tuple)
+
+    def test_multi_line_string_with_linear_ring(self):
+        # LinearRings are transformed to LineString
+        geom = MultiLineString(
+            LineString((0, 0), (1, 1), (5, 5)),
+            LinearRing((0, 0), (0, 5), (5, 5), (5, 0), (0, 0)),
+        )
+        obj = Lines.objects.create(geom=geom)
+        obj.refresh_from_db()
+        self.assertEqual(obj.geom.tuple, geom.tuple)
+        self.assertEqual(obj.geom[0].tuple, geom[0].tuple)
+        self.assertEqual(obj.geom[1].__class__.__name__, "LineString")
+        self.assertEqual(obj.geom[1].tuple, geom[1].tuple)
+
+    def test_multi_point_field(self):
+        geom = MultiPoint(Point(1, 1), Point(0, 0))
+        obj = Points.objects.create(geom=geom)
+        obj.refresh_from_db()
+        self.assertEqual(obj.geom, geom)
 
 
 class GeoLookupTest(TestCase):
